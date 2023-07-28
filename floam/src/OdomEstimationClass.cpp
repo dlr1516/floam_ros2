@@ -1,4 +1,4 @@
-#include "odomEstimationClass.h"
+#include "OdomEstimationClass.h"
 
 void OdomEstimationClass::init(lidar::Lidar lidar_param, double map_resolution){
     //init local map
