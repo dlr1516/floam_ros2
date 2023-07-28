@@ -1,4 +1,4 @@
-#include "laserMappingClass.h"
+#include "LaserMappingClass.h"
 
 void LaserMappingClass::init(double map_resolution){
     //init map
