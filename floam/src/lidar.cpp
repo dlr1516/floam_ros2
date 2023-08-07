@@ -26,6 +26,12 @@ void lidar::Lidar::setScanPeriod(double scan_period_in){
 }
 
 
+double lidar::Lidar::getScanPeriod() {
+    return scan_period;
+}
+
+
+
 void lidar::Lidar::setMaxDistance(double max_distance_in){
     max_distance = max_distance_in;
 }
