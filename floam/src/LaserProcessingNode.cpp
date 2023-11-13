@@ -50,11 +50,9 @@ public:
         
         laserProcessing_.init(lidarParam_);
         
-        laserCloudSub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
-                                                                                  "/velodyne_points", 100, std::bind(&LaserProcessingNode::velodyneHandler, this, std::placeholders::_1));
+        laserCloudSub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>("/velodyne_points", 100, std::bind(&LaserProcessingNode::velodyneHandler, this, std::placeholders::_1));
         
-        laserCloudFilteredPub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(
-                                                                                       "/velodyne_points_filtered", 100);
+        // laserCloudFilteredPub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/velodyne_points_filtered", 100);
         edgePointsPub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/laser_cloud_edge", 100);
         surfPointsPub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/laser_cloud_surf", 100);
         

@@ -87,7 +87,7 @@ bool PoseSE3Parameterization::Plus(const double *x, const double *delta, double 
     return true;
 }
 
-bool PoseSE3Parameterization::ComputeJacobian(const double *x, double *jacobian) const
+bool PoseSE3Parameterization::PlusJacobian(const double *x, double *jacobian) const
 {
     Eigen::Map<Eigen::Matrix<double, 7, 6, Eigen::RowMajor>> j(jacobian);
     (j.topRows(6)).setIdentity();

@@ -21,7 +21,8 @@
 #include <ceres/ceres.h>
 #include <ceres/cost_function.h>
 #include <ceres/problem.h>
-#include <ceres/local_parameterization.h>
+// #include <ceres/local_parameterization.h>
+#include <ceres/manifold.h>
 #include <ceres/rotation.h>
 
 //eigen
