@@ -52,11 +52,10 @@ public:
         
         laserCloudSub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>("/velodyne_points", 100, std::bind(&LaserProcessingNode::velodyneHandler, this, std::placeholders::_1));
         
-        // laserCloudFilteredPub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/velodyne_points_filtered", 100);
+        laserCloudFilteredPub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/velodyne_points_filtered", 100);
         edgePointsPub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/laser_cloud_edge", 100);
         surfPointsPub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/laser_cloud_surf", 100);
-        
-        laser_processing_thread_ = std::thread(&LaserProcessingNode::laserProcessing_, this);
+        laser_processing_thread_ = std::thread(std::bind(&LaserProcessingNode::laser_processing, this), this);
     }
     
     void velodyneHandler(const sensor_msgs::msg::PointCloud2::SharedPtr laserCloudMsg) {
@@ -66,9 +65,7 @@ public:
     
     void laser_processing() {
         while (rclcpp::ok()) {
-            
             if (!pointCloudBuf_.empty()) {
-                
                 sensor_msgs::msg::PointCloud2::SharedPtr laserCloudMsg;
                 {
                     std::lock_guard<std::mutex> lock(mutex_lock_);

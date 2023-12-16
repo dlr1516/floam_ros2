@@ -14,7 +14,9 @@ def generate_launch_description():
     loam_feature_node = Node(
         package='floam',
         executable='floam_laser_processing_node',
-        name='loam_feature_node'
+        name='loam_feature_node',
+        #prefix=['qterminal -e gdb -ex run --args'],
+        #output='screen'
         # parameters=[{'nome_param1': 'valore_param1', 'nome_param2': 'valore_param2'}]
     )
     my_launch_description.add_action(loam_feature_node)
