@@ -83,7 +83,7 @@ public:
     
     void odom_estimation() {
         const double TOLL = 0.5 * lidarParam_.getScanPeriod();
-        RCLCPP_INFO(this->get_logger(), "surfLaserCloudSub_: '%s'", surfLaserCloudSub_.get()->get_topic_name());
+        
         while (rclcpp::ok()) {
             
             std::unique_lock<std::mutex> lock(mutex_lock_);
