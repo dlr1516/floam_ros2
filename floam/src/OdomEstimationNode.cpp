@@ -73,7 +73,6 @@ public:
     }
     
     void velodyneEdgeHandler(const sensor_msgs::msg::PointCloud2::ConstSharedPtr &laserCloudMsg) {
-        RCLCPP_INFO(this->get_logger(), "velodyneEdgeHandler");
         mutex_lock_.lock();
         pointCloudEdgeBuf_.push(laserCloudMsg);
         mutex_lock_.unlock();
