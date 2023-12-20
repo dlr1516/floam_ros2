@@ -49,11 +49,9 @@ public:
         odomEstimation_.init(lidarParam_, map_resolution_param.get_parameter_value().get<double>());
         
         
-        edgeLaserCloudSub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
-                                                                                      "/laser_cloud_edge", 100, std::bind(&OdomEstimationNode::velodyneEdgeHandler, this, std::placeholders::_1));
+        edgeLaserCloudSub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>("/laser_cloud_edge", 100, std::bind(&OdomEstimationNode::velodyneEdgeHandler, this, std::placeholders::_1));
         
-        surfLaserCloudSub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
-                                                                                      "/laser_cloud_surf", 100, std::bind(&OdomEstimationNode::velodyneSurfHandler, this, std::placeholders::_1));
+        surfLaserCloudSub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>("/laser_cloud_surf", 100, std::bind(&OdomEstimationNode::velodyneSurfHandler, this, std::placeholders::_1));
         
         laserOdometryPub_ = this->create_publisher<nav_msgs::msg::Odometry>("/odom", 100);
         
@@ -61,19 +59,21 @@ public:
         is_odom_inited_ = false;
         total_time_ = 0;
         total_frame_ = 0;
-        
-        odom_estimation_thread_ = std::thread(&OdomEstimationNode::odom_estimation, this);
+
+        odom_estimation_thread_ = std::thread(std::bind(&OdomEstimationNode::odom_estimation, this), this);
     }
     
     void velodyneSurfHandler(const sensor_msgs::msg::PointCloud2::ConstSharedPtr &laserCloudMsg) {
         mutex_lock_.lock();
         pointCloudSurfBuf_.push(laserCloudMsg);
         mutex_lock_.unlock();
-        if(!pointCloudEdgeBuf_.empty())
+        if(!pointCloudEdgeBuf_.empty()){
             odom_estimation_queue_.notify_one();
+        }
     }
     
     void velodyneEdgeHandler(const sensor_msgs::msg::PointCloud2::ConstSharedPtr &laserCloudMsg) {
+        RCLCPP_INFO(this->get_logger(), "velodyneEdgeHandler");
         mutex_lock_.lock();
         pointCloudEdgeBuf_.push(laserCloudMsg);
         mutex_lock_.unlock();
@@ -83,20 +83,18 @@ public:
     
     void odom_estimation() {
         const double TOLL = 0.5 * lidarParam_.getScanPeriod();
-        
+        RCLCPP_INFO(this->get_logger(), "surfLaserCloudSub_: '%s'", surfLaserCloudSub_.get()->get_topic_name());
         while (rclcpp::ok()) {
-            
-            mutex_lock_.lock();
             
             std::unique_lock<std::mutex> lock(mutex_lock_);
             while(pointCloudEdgeBuf_.empty() || pointCloudSurfBuf_.empty()){
                 
                 odom_estimation_queue_.wait(lock);
             }
-            
+            lock.unlock();
             
             using namespace std::chrono;
-            
+            mutex_lock_.lock();
             while (!pointCloudSurfBuf_.empty() && !pointCloudEdgeBuf_.empty() &&
                    (pointCloudSurfBuf_.front()->header.stamp.sec < pointCloudEdgeBuf_.front()->header.stamp.sec - duration_cast<seconds>(milliseconds(static_cast<int>(TOLL * 1000))).count())) {
                 
