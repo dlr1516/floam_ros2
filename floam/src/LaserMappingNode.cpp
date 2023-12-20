@@ -59,7 +59,7 @@ public:
                                                                           "/odom", 100, std::bind(&LaserMappingNode::odomCallback, this, std::placeholders::_1));
         
         mapPub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/map",100);
-        laser_mapping_process_ =std::thread(&LaserMappingNode::laser_mapping, this);
+        laser_mapping_process_ =std::thread(std::bind(&LaserMappingNode::laser_mapping, this), this);
     }
     
     void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg){
@@ -83,14 +83,14 @@ public:
         
         while (rclcpp::ok()) {
             
-            mutex_lock_.lock();
             std::unique_lock<std::mutex> lock(mutex_lock_);
             
             while(pointCloudBuf_.empty() || odometryBuf_.empty()){
                 laser_mapping_queue_.wait(lock);
             }
+            lock.unlock();
             
-            
+            mutex_lock_.lock();
             while (!odometryBuf_.empty() && !pointCloudBuf_.empty() &&
                    (odometryBuf_.front()->header.stamp.sec < pointCloudBuf_.front()->header.stamp.sec - duration_cast<seconds>(milliseconds(static_cast<int>(TOLL * 1000))).count())) {
                 
