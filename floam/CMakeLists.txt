@@ -12,6 +12,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(nav_msgs REQUIRED)
@@ -52,7 +53,7 @@ ament_target_dependencies(floam_laser_processing_node rclcpp sensor_msgs geometr
   tf2_ros pcl_conversions)
 
 add_executable(floam_odom_estimation_node src/OdomEstimationNode.cpp src/lidarOptimization.cpp src/lidar.cpp src/OdomEstimationClass.cpp)
-ament_target_dependencies(floam_odom_estimation_node rclcpp sensor_msgs geometry_msgs nav_msgs PCL Ceres tf2
+ament_target_dependencies(floam_odom_estimation_node rclcpp sensor_msgs geometry_msgs visualization_msgs nav_msgs PCL Ceres tf2
   tf2_ros pcl_conversions)
 
 add_executable(floam_laser_mapping_node src/LaserMappingNode.cpp src/LaserMappingClass.cpp src/lidar.cpp)

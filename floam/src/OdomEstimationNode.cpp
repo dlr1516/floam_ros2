@@ -10,6 +10,8 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <visualization_msgs/msg/marker.hpp>
+#include <geometry_msgs/msg/point.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -54,6 +56,8 @@ public:
         surfLaserCloudSub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>("/laser_cloud_surf", 100, std::bind(&OdomEstimationNode::velodyneSurfHandler, this, std::placeholders::_1));
         
         laserOdometryPub_ = this->create_publisher<nav_msgs::msg::Odometry>("/odom", 100);
+
+        markerPub_ = this->create_publisher<visualization_msgs::msg::Marker>( "/visualization_marker", 100 );
         
         br_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
         is_odom_inited_ = false;
@@ -163,10 +167,35 @@ public:
             laserOdometry->pose.pose.position.y = t_current.y();
             laserOdometry->pose.pose.position.z = t_current.z();
             laserOdometryPub_->publish(std::move(laserOdometry));
+
+            publishMarkers(t_current, pointcloud_time);
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
         
+    }
+
+    void publishMarkers(Eigen::Vector3d t, rclcpp::Time stamp){
+            marker.header.frame_id = "map";
+            marker.header.stamp = stamp;
+            marker.ns = "floam";
+            marker.id = 0;
+            marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
+            marker.action = visualization_msgs::msg::Marker::ADD;
+            marker.pose.orientation.w = 1;
+            marker.scale.x = 0.03;
+            marker.color.a = 1.0; // Don't forget to set the alpha!
+            marker.color.r = 0.0;
+            marker.color.g = 1.0;
+            marker.color.b = 0.0;
+
+            geometry_msgs::msg::Point p;
+            p.x = t.x();
+            p.y = t.y();
+            p.z = t.z();
+            marker.points.push_back(p);
+
+            markerPub_->publish( std::move(marker));
     }
     
     
@@ -183,6 +212,9 @@ private:
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr edgeLaserCloudSub_;
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr surfLaserCloudSub_;
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr laserOdometryPub_;
+    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr markerPub_;
+
+    visualization_msgs::msg::Marker marker;
     
     bool is_odom_inited_;
     double total_time_;
