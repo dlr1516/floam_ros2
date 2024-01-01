@@ -60,6 +60,10 @@ add_executable(floam_laser_mapping_node src/LaserMappingNode.cpp src/LaserMappin
 ament_target_dependencies(floam_laser_mapping_node rclcpp sensor_msgs geometry_msgs nav_msgs PCL Ceres tf2
   tf2_ros pcl_conversions)
 
+add_executable(floam_marker_visualization_node src/MarkerVisualizationNode.cpp)
+ament_target_dependencies(floam_marker_visualization_node rclcpp nav_msgs geometry_msgs visualization_msgs PCL Ceres tf2
+  tf2_ros pcl_conversions)
+
 target_link_libraries(floam_laser_processing_node ${PCL_LIBRARIES})
 
 target_link_libraries(floam_odom_estimation_node ${PCL_LIBRARIES})
@@ -67,11 +71,13 @@ target_link_libraries(floam_odom_estimation_node ${CERES_LIBRARY_DIRS})
 target_link_libraries(floam_odom_estimation_node ${CERES_LIBRARIES})
 
 target_link_libraries(floam_laser_mapping_node ${PCL_LIBRARIES})
+target_link_libraries(floam_marker_visualization_node ${PCL_LIBRARIES})
 
 install(TARGETS
   floam_laser_processing_node
   floam_odom_estimation_node
   floam_laser_mapping_node
+  floam_marker_visualization_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
