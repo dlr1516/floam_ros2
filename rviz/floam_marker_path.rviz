@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /Odometry1/Shape1
+        - /MapPC1
         - /Marker1/Topic1
       Splitter Ratio: 0.5
     Tree Height: 744
@@ -46,7 +47,7 @@ Visualization Manager:
         Y: 0
         Z: 0
       Plane: XY
-      Plane Cell Count: 10
+      Plane Cell Count: 200
       Reference Frame: <Fixed Frame>
       Value: true
     - Alpha: 1
@@ -64,7 +65,7 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 73
+      Max Intensity: 64
       Min Color: 0; 0; 0
       Min Intensity: 1
       Name: LaserCloudEdge
@@ -98,7 +99,7 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 100
+      Max Intensity: 80
       Min Color: 0; 0; 0
       Min Intensity: 1
       Name: LaserCloudSurf
@@ -209,15 +210,7 @@ Visualization Manager:
       Show Names: false
       Tree:
         map:
-          base_link:
-            front_left_wheel:
-              {}
-            front_right_wheel:
-              {}
-            rear_left_wheel:
-              {}
-            rear_right_wheel:
-              {}
+          {}
       Update Interval: 0
       Value: true
     - Angle Tolerance: 0.10000000149011612
@@ -262,8 +255,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
+        Max Value: 10.428550720214844
+        Min Value: -2.233673572540283
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -281,7 +274,7 @@ Visualization Manager:
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.019999999552965164
+      Size (m): 0.03999999910593033
       Style: Flat Squares
       Topic:
         Depth: 5
@@ -297,7 +290,7 @@ Visualization Manager:
       Enabled: true
       Name: Marker
       Namespaces:
-        floam: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -352,25 +345,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 35.36839294433594
+      Distance: 13.582303047180176
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 14.191017150878906
-        Y: -1.8689138889312744
-        Z: -0.4943396747112274
+        X: 0.7389151453971863
+        Y: -1.438281774520874
+        Z: -1.5103648900985718
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8603973388671875
+      Pitch: 0.8847967386245728
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.3553974628448486
+      Yaw: 1.8004002571105957
     Saved: ~
 Window Geometry:
   Displays:
