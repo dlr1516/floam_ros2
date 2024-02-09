@@ -7,6 +7,23 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(PCL REQUIRED)
+find_package(pcl_conversions REQUIRED)
+
+include_directories(
+  include
+  ${PCL_INCLUDE_DIRS}
+)
+
+link_directories(
+  include
+  ${PCL_LIBRARY_DIRS}
+)
+
+
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -24,6 +41,7 @@ if(BUILD_TESTING)
 endif()
 
 add_executable(cloud_publisher src/cloud_publisher.cpp)
-ament_target_dependencies(cloud_publisher rclcpp sensor_msgs tf2_ros pcl_conversions)
+ament_target_dependencies(cloud_publisher rclcpp sensor_msgs pcl_conversions)
+target_link_libraries(cloud_publisher ${PCL_LIBRARIES})
 
 ament_package()
