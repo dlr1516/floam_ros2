@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<launch>
-    <node pkg="floam" exec="floam_laser_processing_node" name="stat">
-        <param name="scan_topic" value="/scan" />
-        <param name="scan_out_topic" value="/scan" />
-    </node>
-</launch>
