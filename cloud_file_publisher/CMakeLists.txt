@@ -44,4 +44,16 @@ add_executable(cloud_publisher src/cloud_publisher.cpp)
 ament_target_dependencies(cloud_publisher rclcpp sensor_msgs pcl_conversions)
 target_link_libraries(cloud_publisher ${PCL_LIBRARIES})
 
+install(TARGETS
+  cloud_publisher
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+
+
 ament_package()

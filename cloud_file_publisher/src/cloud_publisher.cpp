@@ -45,7 +45,7 @@ class CloudPublisherNode : public rclcpp::Node {
         this->get_parameter("cloud_file_glob", cloud_file_glob);
         this->declare_parameter("frame_id", "laser_link");
         this->get_parameter("frame_id", frame_id_);
-        this->declare_parameter("pub_period_ms", "100.0");
+        this->declare_parameter("pub_period_ms", 100.0);
         this->get_parameter("pub_period_ms", pub_period_ms_);
 
         // Initializes the publisher.
@@ -62,6 +62,7 @@ class CloudPublisherNode : public rclcpp::Node {
             
         auto period = std::chrono::duration_cast<std::chrono::steady_clock::duration>(
                               std::chrono::duration<float>(pub_period_ms_));
+        RCLCPP_INFO_STREAM(this->get_logger(), "publish every " << std::chrono::duration_cast<std::chrono::milliseconds>(period).count() << " ms");            
         timer_ = this->create_wall_timer(
             period, std::bind(&CloudPublisherNode::publishPeriodic, this));
     }
