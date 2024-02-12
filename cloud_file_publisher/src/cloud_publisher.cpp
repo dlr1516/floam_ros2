@@ -28,6 +28,26 @@ void glob(const std::string& globPath, std::deque<std::string>& matchingFiles) {
     globfree(&glob_result);
 }
 
+int readKittiBinCloudFile(const std::string& filename, pcl::PointCloud<pcl::PointXYZI>& points) {
+  std::fstream input(filename.c_str(), std::ios::in | std::ios::binary);
+  if (!input.good()) {
+    std::cerr << "Could not read file: " << filename << std::endl;
+    return -1;
+  } 
+  std::cout << "reading " << filename << std::endl;
+  input.seekg(0, std::ios::beg);
+
+  int i;
+  for (i = 0; input.good() && !input.eof(); i++) {
+    pcl::PointXYZI point;
+    input.read((char *) &point.x, 3 * sizeof (float));
+    input.read((char *) &point.intensity, sizeof (float));
+    points.push_back(point);
+  }
+  input.close();
+  return i;
+}
+
 
 class CloudPublisherNode : public rclcpp::Node {
    public:
@@ -45,8 +65,10 @@ class CloudPublisherNode : public rclcpp::Node {
         this->get_parameter("cloud_file_glob", cloud_file_glob);
         this->declare_parameter("frame_id", "laser_link");
         this->get_parameter("frame_id", frame_id_);
-        this->declare_parameter("pub_period_ms", 100.0);
-        this->get_parameter("pub_period_ms", pub_period_ms_);
+        this->declare_parameter("pub_period_sec", 0.100);
+        this->get_parameter("pub_period_sec", pub_period_sec_);
+        this->declare_parameter("cloud_file_type", "kitti");
+        this->get_parameter("cloud_file_type", cloud_file_type_);
 
         // Initializes the publisher.
         cloudPub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(
@@ -61,7 +83,7 @@ class CloudPublisherNode : public rclcpp::Node {
             this->create_publisher<sensor_msgs::msg::PointCloud2>(cloud_topic_, 10);  
             
         auto period = std::chrono::duration_cast<std::chrono::steady_clock::duration>(
-                              std::chrono::duration<float>(pub_period_ms_));
+                              std::chrono::duration<float>(pub_period_sec_));
         RCLCPP_INFO_STREAM(this->get_logger(), "publish every " << std::chrono::duration_cast<std::chrono::milliseconds>(period).count() << " ms");            
         timer_ = this->create_wall_timer(
             period, std::bind(&CloudPublisherNode::publishPeriodic, this));
@@ -79,10 +101,19 @@ class CloudPublisherNode : public rclcpp::Node {
     
       pcl::PointCloud<pcl::PointXYZI>::Ptr points(new pcl::PointCloud<pcl::PointXYZI>);
       RCLCPP_DEBUG_STREAM(this->get_logger(), "reading file " << cloudFilename);
-      if (pcl::io::loadPCDFile<pcl::PointXYZI> (cloudFilename.c_str(), *points) == -1) {
-         RCLCPP_ERROR_STREAM(this->get_logger(), "Could not read file: " << cloudFilename);
-         return;
-       }
+      
+      if (cloud_file_type_ == "pcd") {
+        if (pcl::io::loadPCDFile<pcl::PointXYZI> (cloudFilename.c_str(), *points) == -1) {
+          RCLCPP_ERROR_STREAM(this->get_logger(), "Could not read PCD file: " << cloudFilename);
+          return;
+        }
+      }
+      else if (cloud_file_type_ == "kitti") {
+        if (readKittiBinCloudFile(cloudFilename.c_str(), *points) == -1) {
+          RCLCPP_ERROR_STREAM(this->get_logger(), "Could not read KITTI file: " << cloudFilename);
+          return;
+        }
+      }
       
 
        //workaround for the PCL headers... http://wiki.ros.org/hydro/Migration#PCL
@@ -98,7 +129,8 @@ class CloudPublisherNode : public rclcpp::Node {
     rclcpp::TimerBase::SharedPtr timer_;
     std::string cloud_topic_;
     std::string frame_id_;
-    float pub_period_ms_;
+    float pub_period_sec_;
+    std::string cloud_file_type_;
     std::deque<std::string> cloud_files_;
 };
 
