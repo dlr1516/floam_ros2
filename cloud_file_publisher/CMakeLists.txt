@@ -14,6 +14,7 @@ find_package(nav_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(PCL REQUIRED)
 find_package(pcl_conversions REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 include_directories(
   include
@@ -46,7 +47,7 @@ add_executable(cloud_publisher src/cloud_publisher.cpp)
 ament_target_dependencies(cloud_publisher rclcpp sensor_msgs pcl_conversions)
 target_link_libraries(cloud_publisher ${PCL_LIBRARIES})
 
-add_executable(path_save_node src/path_save_node.cpp)
+add_executable(path_save_node src/path_save_node.cpp src/transform_utils.cpp)
 ament_target_dependencies(path_save_node rclcpp sensor_msgs geometry_msgs nav_msgs tf2 tf2_ros)
 
 install(TARGETS

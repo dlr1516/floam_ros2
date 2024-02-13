@@ -12,6 +12,8 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
 
+#include "transform_utils.h"
+
 
 class PathSaveNode : public rclcpp::Node {
 public:
@@ -34,6 +36,8 @@ public:
     // output_mode
     this->declare_parameter("output_mode", "quarternion");
     this->get_parameter("output_mode", output_mode_);
+    this->declare_parameter("output_filename", "path.txt");
+    this->get_parameter("output_filename", output_filename_);
     
     // Creates the transform listener with buffer
     tf_buffer_ =
@@ -64,12 +68,42 @@ public:
     }
   }
   
+  ~PathSaveNode() {
+    RCLCPP_INFO_STREAM(this->get_logger(), 
+        "Could not transform child_frame_id \"" << child_frame_id_ << "\" to frame_id \"" 
+          << frame_id_ << "\":\n  " << ex.what());
+    write();
+  }
+  
   void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg){
-
+    rimlab_kitti::Transform3 transf;
+    float tx = msg->pose.pose.position.x;
+    float ty = msg->pose.pose.position.y;
+    float tz = msg->pose.pose.position.z;
+    float qw = msg->pose.pose.orientation.w;
+    float qx = msg->pose.pose.orientation.x;
+    float qy = msg->pose.pose.orientation.y;
+    float qz = msg->pose.pose.orientation.z;
+    transf = rimlab_kitti::computeTransform(tx,ty,tz,qw,qx,qy,qz);
+    path_.push_back(transf);
   }
   
   void pathCallback(const nav_msgs::msg::Path::SharedPtr msg){
-
+    float tx,ty,tz,qw,qx,qy,qz;
+  
+    path_.clear();
+    path_.reserve(msg->poses.size());
+    for (auto& p : msg->poses) {
+      tx = p.pose.position.x;
+      ty = p.pose.position.y;
+      tz = p.pose.position.z;
+      qw = p.pose.orientation.w;
+      qx = p.pose.orientation.x;
+      qy = p.pose.orientation.y;
+      qz = p.pose.orientation.z;
+      rimlab_kitti::Transform3 transf = rimlab_kitti::computeTransform(tx,ty,tz,qw,qx,qy,qz);
+      path_.push_back(transf);
+    }
   }
   
   void readTfPeriodic() {
@@ -82,9 +116,33 @@ public:
           << frame_id_ << "\":\n  " << ex.what());
       return;
     }
+    
+    float tx = t.transform.translation.x;
+    float ty = t.transform.translation.y;
+    float tz = t.transform.translation.z;
+    float qw = t.transform.rotation.w;
+    float qx = t.transform.rotation.x;
+    float qy = t.transform.rotation.y;
+    float qz = t.transform.rotation.z;
+    rimlab_kitti::Transform3 transf = rimlab_kitti::computeTransform(tx,ty,tz,qw,qx,qy,qz);
+    path_.push_back(transf);
+  }
+  
+  void write() {
+    std::ofstream outfile(output_filename_);
+    if (!outfile) {
+      RCLCPP_INFO_STREAM(this->get_logger(), 
+        "Cannot write path on file \"" << output_filename_ << "\"");
+      return;
+    }
+    for (auto& t : path_) {
+      writePoseMat(outfile,p);
+    }
+    outfile.close();
   }
 
 private:
+  rimlab_kitti::VectorTransform3 path_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odometrySub_;
   rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr pathSub_;
   rclcpp::TimerBase::SharedPtr timer_{nullptr};
@@ -97,6 +155,7 @@ private:
   double tf_period_sec_;
   std::string odometry_topic_;
   std::string path_topic_;
+  std::string output_filename_;
 };   
 
 
