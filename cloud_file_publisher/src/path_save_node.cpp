@@ -34,7 +34,7 @@ public:
     this->declare_parameter("path_topic", "/path");
     this->get_parameter("path_topic", path_topic_);
     // output_mode
-    this->declare_parameter("output_mode", "quarternion");
+    this->declare_parameter("output_mode", "mat");
     this->get_parameter("output_mode", output_mode_);
     this->declare_parameter("output_filename", "path.txt");
     this->get_parameter("output_filename", output_filename_);
@@ -69,9 +69,7 @@ public:
   }
   
   ~PathSaveNode() {
-    RCLCPP_INFO_STREAM(this->get_logger(), 
-        "Could not transform child_frame_id \"" << child_frame_id_ << "\" to frame_id \"" 
-          << frame_id_ << "\":\n  " << ex.what());
+    RCLCPP_INFO_STREAM(this->get_logger(), "CLOSING NODE and SAVING robot path");
     write();
   }
   
@@ -136,7 +134,7 @@ public:
       return;
     }
     for (auto& t : path_) {
-      writePoseMat(outfile,p);
+      rimlab_kitti::writePoseMat(outfile,t);
     }
     outfile.close();
   }

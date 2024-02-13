@@ -140,6 +140,8 @@ public:
             Eigen::Quaterniond q_current(odomEstimation_.odom.rotation());
             Eigen::Vector3d t_current = odomEstimation_.odom.translation();
             
+            q_current.normalize();
+            
             geometry_msgs::msg::TransformStamped transform;
             transform.header.frame_id = "map";
             transform.child_frame_id = "base_link";
