@@ -104,13 +104,13 @@ class CloudPublisherNode : public rclcpp::Node {
       
       if (cloud_file_type_ == "pcd") {
         if (pcl::io::loadPCDFile<pcl::PointXYZI> (cloudFilename.c_str(), *points) == -1) {
-          RCLCPP_ERROR_STREAM(this->get_logger(), "Could not read PCD file: " << cloudFilename);
+          RCLCPP_ERROR_STREAM(this->get_logger(), "Cannot read PCD file: " << cloudFilename);
           return;
         }
       }
       else if (cloud_file_type_ == "kitti") {
         if (readKittiBinCloudFile(cloudFilename.c_str(), *points) == -1) {
-          RCLCPP_ERROR_STREAM(this->get_logger(), "Could not read KITTI file: " << cloudFilename);
+          RCLCPP_ERROR_STREAM(this->get_logger(), "Cannot read KITTI file: " << cloudFilename);
           return;
         }
       }
